@@ -29,8 +29,7 @@ exports.signup = async (req: Request, res: Response) => {
       created_at: Date.now(),
       updated_at: Date.now(),
     });
-    createdUser._id = createdUser.ops[0]._id;
-    res.json(signToken(createdUser))
+    res.json(signToken(createdUser.ops[0]))
   } catch (e) {
     res.status(400).send("An error ocurred");
   }

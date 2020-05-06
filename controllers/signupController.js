@@ -85,7 +85,7 @@ exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, 
             case 4:
                 createdUser = _b.sent();
                 createdUser._id = createdUser.ops[0]._id;
-                res.json(signToken(createdUser));
+                res.json(signToken(createdUser.ops[0]));
                 return [3 /*break*/, 6];
             case 5:
                 e_1 = _b.sent();
