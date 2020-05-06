@@ -10,8 +10,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 db_config_1.connectDB();
-app.use("/signup", require("./routes/signup"));
-app.use("/login", require("./routes/auth"));
+app.use("/api/signup", require("./routes/signup"));
+app.use("/api/login", require("./routes/auth"));
 app.listen(port, "0.0.0.0", function () {
     console.log("App running on port " + port);
 });

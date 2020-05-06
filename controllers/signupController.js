@@ -84,7 +84,6 @@ exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 return [4 /*yield*/, User.collection.insertOne(__assign(__assign({}, user), { created_at: Date.now(), updated_at: Date.now() }))];
             case 4:
                 createdUser = _b.sent();
-                createdUser._id = createdUser.ops[0]._id;
                 res.json(signToken(createdUser.ops[0]));
                 return [3 /*break*/, 6];
             case 5:

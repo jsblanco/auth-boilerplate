@@ -9,7 +9,9 @@ module.exports = (req : tokenReq, res : Response, next: NextFunction) => {
     }
     try {
         const signature = jwt.verify(token, process.env.SECRETKEY);
-        req.email = signature.email;
+        req.body.user.email = signature.email;
+        req.body.user.username = signature.username;
+        req.body.user._id = signature._id;
         next()
     } catch (e) {
         res.status(401).json({msg: "Invalid token"})
