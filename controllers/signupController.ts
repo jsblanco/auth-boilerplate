@@ -24,7 +24,7 @@ exports.signup = async (req: Request, res: Response) => {
     }
     user = { username, email, password }
     user.password = bcryptjs.hashSync(password, 10);
-    const createdUser = await User.insertOne({
+    const createdUser = await User.collection.insertOne({
       ...user,
       created_at: Date.now(),
       updated_at: Date.now(),
@@ -37,7 +37,6 @@ exports.signup = async (req: Request, res: Response) => {
         email: createdUser.email,
       },
     };
-
     jwt.sign(
       payload,
       process.env.SECRETKEY,
