@@ -1,8 +1,8 @@
 const User = require("./../models/user");
 const bcryptjs = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 import { Request, Response } from "express";
 const { validationResult } = require("express-validator");
+const signToken = require("./../helpers/signToken");
 
 exports.signup = async (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -29,25 +29,8 @@ exports.signup = async (req: Request, res: Response) => {
       created_at: Date.now(),
       updated_at: Date.now(),
     });
-    const { _id } = createdUser.ops[0];
-    const payload = {
-      user: {
-        _id: _id,
-        username: createdUser.username,
-        email: createdUser.email,
-      },
-    };
-    jwt.sign(
-      payload,
-      process.env.SECRETKEY,
-      {
-        expiresIn: 31536000, // 1 Year
-      },
-      (error: any, token: any) => {
-        if (error) throw error;
-        res.json({ token });
-      }
-    );
+    createdUser._id = createdUser.ops[0]._id;
+    res.json(signToken(createdUser))
   } catch (e) {
     res.status(400).send("An error ocurred");
   }

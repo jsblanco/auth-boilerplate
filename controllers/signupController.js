@@ -49,14 +49,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var User = require("./../models/user");
 var bcryptjs = require("bcryptjs");
-var jwt = require("jsonwebtoken");
 var validationResult = require("express-validator").validationResult;
+var signToken = require("./../helpers/signToken");
 exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, username, password, email, user, createdUser, _id, payload, e_1;
+    var errors, _a, username, password, email, user, createdUser, e_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                console.log("línea 8");
                 errors = validationResult(req);
                 if (!errors.isEmpty()) {
                     return [2 /*return*/, res.status(400).json({ errors: errors.array() })];
@@ -80,32 +79,16 @@ exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                             .status(400)
                             .json({ msg: "username is already in the database" })];
                 }
-                console.log("línea 26");
                 user = { username: username, email: email, password: password };
                 user.password = bcryptjs.hashSync(password, 10);
                 return [4 /*yield*/, User.collection.insertOne(__assign(__assign({}, user), { created_at: Date.now(), updated_at: Date.now() }))];
             case 4:
                 createdUser = _b.sent();
-                _id = createdUser.ops[0]._id;
-                payload = {
-                    user: {
-                        _id: _id,
-                        username: createdUser.username,
-                        email: createdUser.email,
-                    },
-                };
-                console.log("línea 42");
-                jwt.sign(payload, process.env.SECRETKEY, {
-                    expiresIn: 31536000,
-                }, function (error, token) {
-                    if (error)
-                        throw error;
-                    res.json({ token: token });
-                });
+                createdUser._id = createdUser.ops[0]._id;
+                res.json(signToken(createdUser));
                 return [3 /*break*/, 6];
             case 5:
                 e_1 = _b.sent();
-                console.log(e_1);
                 res.status(400).send("An error ocurred");
                 return [3 /*break*/, 6];
             case 6: return [2 /*return*/];
