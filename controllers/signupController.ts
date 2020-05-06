@@ -9,7 +9,8 @@ exports.signup = async (req: Request, res: Response) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
+  const email = req.body.email.toLowerCase()
   try {
     let user = await User.findOne({ email });
     if (user) {
@@ -21,17 +22,21 @@ exports.signup = async (req: Request, res: Response) => {
         .status(400)
         .json({ msg: "username is already in the database" });
     }
-    user = req.body;
-    console.log(user)
+    user = { username, email, password }
     user.password = bcryptjs.hashSync(password, 10);
-    const createdUser = await User.create(user);
-
+    const createdUser = await User.insertOne({
+      ...user,
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    });
+    const { _id } = createdUser.ops[0];
     const payload = {
-     username: createdUser.username,
-     email: createdUser.email
+      user: {
+        _id: _id,
+        username: createdUser.username,
+        email: createdUser.email,
+      },
     };
-
-    console.log("payload", payload);
 
     jwt.sign(
       payload,

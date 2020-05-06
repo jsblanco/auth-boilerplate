@@ -11,6 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 connectDB();
 
 app.use("/signup", require("./routes/signup"));
+app.use("/login", require("./routes/auth"));
 
 app.listen(port, "0.0.0.0", ()=>{
     console.log(`App running on port ${port}`)

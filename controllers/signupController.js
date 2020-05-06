@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -41,7 +52,7 @@ var bcryptjs = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 var validationResult = require("express-validator").validationResult;
 exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, username, email, password, user, createdUser, payload, e_1;
+    var errors, _a, username, password, email, user, createdUser, _id, payload, e_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -49,7 +60,8 @@ exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 if (!errors.isEmpty()) {
                     return [2 /*return*/, res.status(400).json({ errors: errors.array() })];
                 }
-                _a = req.body, username = _a.username, email = _a.email, password = _a.password;
+                _a = req.body, username = _a.username, password = _a.password;
+                email = req.body.email.toLowerCase();
                 _b.label = 1;
             case 1:
                 _b.trys.push([1, 5, , 6]);
@@ -67,17 +79,19 @@ exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                             .status(400)
                             .json({ msg: "username is already in the database" })];
                 }
-                user = req.body;
-                console.log(user);
+                user = { username: username, email: email, password: password };
                 user.password = bcryptjs.hashSync(password, 10);
-                return [4 /*yield*/, User.create(user)];
+                return [4 /*yield*/, User.insertOne(__assign(__assign({}, user), { created_at: Date.now(), updated_at: Date.now() }))];
             case 4:
                 createdUser = _b.sent();
+                _id = createdUser.ops[0]._id;
                 payload = {
-                    username: createdUser.username,
-                    email: createdUser.email
+                    user: {
+                        _id: _id,
+                        username: createdUser.username,
+                        email: createdUser.email,
+                    },
                 };
-                console.log("payload", payload);
                 jwt.sign(payload, process.env.SECRETKEY, {
                     expiresIn: 31536000,
                 }, function (error, token) {
