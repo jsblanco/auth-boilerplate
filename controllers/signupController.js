@@ -38,14 +38,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var User = require("./../models/user");
 var bcryptjs = require("bcryptjs");
-var jwt = require('jsonwebtoken');
+var jwt = require("jsonwebtoken");
 var validationResult = require("express-validator").validationResult;
 exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, username, email, password, user, payload, e_1;
+    var errors, _a, username, email, password, user, createdUser, payload, e_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                console.log(req.body);
                 errors = validationResult(req);
                 if (!errors.isEmpty()) {
                     return [2 /*return*/, res.status(400).json({ errors: errors.array() })];
@@ -64,20 +63,23 @@ exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, 
             case 3:
                 user = _b.sent();
                 if (user) {
-                    return [2 /*return*/, res.status(400).json({ msg: "username is already in the database" })];
+                    return [2 /*return*/, res
+                            .status(400)
+                            .json({ msg: "username is already in the database" })];
                 }
                 user = req.body;
+                console.log(user);
                 user.password = bcryptjs.hashSync(password, 10);
                 return [4 /*yield*/, User.create(user)];
             case 4:
-                _b.sent();
+                createdUser = _b.sent();
                 payload = {
-                    user: {
-                        id: user.id
-                    }
+                    username: createdUser.username,
+                    email: createdUser.email
                 };
+                console.log("payload", payload);
                 jwt.sign(payload, process.env.SECRETKEY, {
-                    expiresIn: 31536000 // 1 Year
+                    expiresIn: 31536000,
                 }, function (error, token) {
                     if (error)
                         throw error;
@@ -86,8 +88,7 @@ exports.signup = function (req, res) { return __awaiter(void 0, void 0, void 0, 
                 return [3 /*break*/, 6];
             case 5:
                 e_1 = _b.sent();
-                console.log(e_1);
-                res.status(400).send('An error ocurred');
+                res.status(400).send("An error ocurred");
                 return [3 /*break*/, 6];
             case 6: return [2 /*return*/];
         }

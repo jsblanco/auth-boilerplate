@@ -8,7 +8,7 @@ module.exports = function (req, res, next) {
     }
     try {
         var signature = jwt.verify(token, process.env.SECRETKEY);
-        req.username = signature.username;
+        req.email = signature.email;
         next();
     }
     catch (e) {
