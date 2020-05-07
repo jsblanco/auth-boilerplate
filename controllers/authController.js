@@ -57,6 +57,7 @@ exports.login = function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 return [4 /*yield*/, User.findOne({ email: email })];
             case 2:
                 userInDb = _a.sent();
+                console.log(userInDb);
                 if (!userInDb)
                     return [2 /*return*/, res.status(400).json({ msg: "Email or password not valid" })];
                 checkPassword = bcryptjs.compareSync(password, userInDb.password);
@@ -70,6 +71,117 @@ exports.login = function (req, res) { return __awaiter(void 0, void 0, void 0, f
                 res.status(400).send("An error ocurred");
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.me = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, user, payload, e_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    return [2 /*return*/, res.status(400).json({ errors: errors.array() })];
+                }
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, User.findOne({ email: req.body.token.email }).select("-password")];
+            case 2:
+                user = _a.sent();
+                payload = {
+                    token: { id: user._id, username: user.username, email: user.email },
+                };
+                res.json(signToken(payload));
+                return [3 /*break*/, 4];
+            case 3:
+                e_2 = _a.sent();
+                console.error(e_2);
+                res.status(500).json({ msg: "Server error" });
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.edit = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, username, oldPassword, email, password, id, checkEmail, userData, checkPassword, salt, hashPassword, e_3;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _a = req.body, username = _a.username, oldPassword = _a.oldPassword, email = _a.email, password = _a.password;
+                id = req.body.token.id;
+                _b.label = 1;
+            case 1:
+                _b.trys.push([1, 9, , 10]);
+                if (!(email !== req.body.token.email)) return [3 /*break*/, 3];
+                return [4 /*yield*/, User.findOne({ email: email })];
+            case 2:
+                checkEmail = _b.sent();
+                if (checkEmail)
+                    return [2 /*return*/, res.status(400).json({ msg: "Email not valid" })];
+                _b.label = 3;
+            case 3: return [4 /*yield*/, User.findById(id)];
+            case 4:
+                userData = _b.sent();
+                return [4 /*yield*/, bcryptjs.compare(oldPassword, userData.password)];
+            case 5:
+                checkPassword = _b.sent();
+                if (!checkPassword)
+                    return [2 /*return*/, res.status(400).json({ msg: "Password incorrect" })];
+                return [4 /*yield*/, bcryptjs.genSalt(10)];
+            case 6:
+                salt = _b.sent();
+                return [4 /*yield*/, bcryptjs.hash(password, salt)];
+            case 7:
+                hashPassword = _b.sent();
+                return [4 /*yield*/, User.findByIdAndUpdate(id, {
+                        username: username,
+                        email: email,
+                        password: hashPassword,
+                    })];
+            case 8:
+                _b.sent();
+                res.json(signToken({ _id: id, username: username, email: email }));
+                return [3 /*break*/, 10];
+            case 9:
+                e_3 = _b.sent();
+                console.error(e_3);
+                res.status(500).json({ msg: "Server error" });
+                return [3 /*break*/, 10];
+            case 10: return [2 /*return*/];
+        }
+    });
+}); };
+exports.delete = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, userData, checkPassword, e_4;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                id = req.body.token.id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 5, , 6]);
+                return [4 /*yield*/, User.findById(id)];
+            case 2:
+                userData = _a.sent();
+                if (!req.body.password)
+                    return [2 /*return*/, res.status(400).json({ msg: "Password empty" })];
+                return [4 /*yield*/, bcryptjs.compare(req.body.password, userData.password)];
+            case 3:
+                checkPassword = _a.sent();
+                if (!checkPassword)
+                    return [2 /*return*/, res.status(400).json({ msg: "Password incorrect" })];
+                return [4 /*yield*/, User.findByIdAndRemove(id)];
+            case 4:
+                _a.sent();
+                res.json({ msg: "User deleted" });
+                return [3 /*break*/, 6];
+            case 5:
+                e_4 = _a.sent();
+                console.error(e_4);
+                res.status(500).json({ msg: "Server error" });
+                return [3 /*break*/, 6];
+            case 6: return [2 /*return*/];
         }
     });
 }); };

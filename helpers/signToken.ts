@@ -8,13 +8,10 @@ type userData = {
 
 module.exports = (userData: userData) => {
   const payload = {
-    user: {
-      _id: userData._id,
+      id: userData._id,
       username: userData.username,
       email: userData.email,
-    },
   };
-  console.log(userData, payload)
   return {token: jwt.sign(
     payload,
     process.env.SECRETKEY,

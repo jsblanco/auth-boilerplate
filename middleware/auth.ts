@@ -3,15 +3,17 @@ import { Request, Response, NextFunction } from 'express';
 type tokenReq = Request & {email: string}
 
 module.exports = (req : tokenReq, res : Response, next: NextFunction) => {
-    const token = req.header("x-auth.token");
-    if (!token) {
+    let appName="App-"
+    appName+= process.env.APPNAME
+
+
+    const token = req.header("x-auth-token");
+    if (!req.cookies[appName].token) {
         return res.status(401).json({msg: "Unauthorized"})
     }
     try {
         const signature = jwt.verify(token, process.env.SECRETKEY);
-        req.body.user.email = signature.email;
-        req.body.user.username = signature.username;
-        req.body.user._id = signature._id;
+        req.body.token = signature.token;
         next()
     } catch (e) {
         res.status(401).json({msg: "Invalid token"})

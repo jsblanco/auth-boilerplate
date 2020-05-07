@@ -2,13 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var router = express.Router();
-var check = require("express-validator").check;
 var authController = require("./../controllers/authController");
 var auth = require("./../middleware/auth");
+var checkError = require("./../helpers/checkUser");
 router.post("/", authController.login);
-/*
-router.get("/",
-    auth,
-    authController.authMe
-);*/
+router.get("/", auth, authController.me);
+router.put("/", checkError(), auth, authController.edit);
+router.delete("/", auth, authController.delete);
 module.exports = router;
